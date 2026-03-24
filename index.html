@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smarttelefonfri Barndom</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #09090b;
+    --fg: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #52525b;
+    --accent: #e4e4e7;
+    --rose: #fb7185;
+    --emerald: #34d399;
+    --sky: #38bdf8;
+    --amber: #fbbf24;
+    --border: rgba(255,255,255,0.06);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    overflow: hidden;
+    height: 100dvh;
+    width: 100vw;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { position: relative; width: 100%; height: 100%; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 3.5rem 5rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+                transform 0.55s cubic-bezier(0.22,1,0.36,1);
+    transform: translateY(16px);
+    will-change: opacity, transform;
+    z-index: 1;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; transform: none; }
+  .slide.exit { opacity: 0; transform: translateY(-16px); }
+
+  /* Typography */
+  .tag {
+    font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 1.6rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tag .pip {
+    width: 5px; height: 5px; border-radius: 50%;
+    display: inline-block;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+    font-weight: 800; line-height: 1.08;
+    letter-spacing: -0.03em;
+    max-width: 860px; text-align: center;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.025em;
+    max-width: 760px; text-align: center;
+  }
+
+  .sub {
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    font-weight: 300; line-height: 1.65;
+    color: var(--muted); max-width: 560px;
+    text-align: center; margin-top: 1.2rem;
+  }
+
+  .big {
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 900; line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .divider {
+    width: 32px; height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin: 1.4rem 0;
+  }
+
+  /* Stat grid */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px; max-width: 820px; width: 100%;
+    margin-top: 2.2rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .stat {
+    background: var(--bg);
+    padding: 1.6rem 1.2rem;
+    text-align: center;
+  }
+  .stat-v {
+    font-size: 2rem; font-weight: 800;
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .stat-l {
+    font-size: 0.73rem; color: var(--muted);
+    margin-top: 0.5rem; line-height: 1.45;
+  }
+  .stat-src {
+    font-size: 0.58rem; color: var(--dim);
+    margin-top: 0.3rem;
+  }
+
+  /* Card list */
+  .cards {
+    display: flex; flex-direction: column; gap: 1px;
+    max-width: 640px; width: 100%; margin-top: 2rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .card {
+    background: var(--bg);
+    padding: 1.2rem 1.5rem;
+    display: flex; align-items: flex-start; gap: 0.9rem;
+  }
+  .card-i {
+    flex-shrink: 0; width: 1.6rem; text-align: center;
+    font-size: 0.85rem; line-height: 1.65; color: var(--dim);
+  }
+  .card b { font-weight: 600; font-size: 0.88rem; display: block; margin-bottom: 0.15rem; }
+  .card span { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+  /* Balance table */
+  .balance {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; max-width: 640px; width: 100%; margin-top: 2rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .bal-col {
+    background: var(--bg); padding: 1.4rem 1.5rem;
+  }
+  .bal-col h3 {
+    font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .bal-col ul {
+    list-style: none; display: flex;
+    flex-direction: column; gap: 0.5rem;
+  }
+  .bal-col li {
+    font-size: 0.8rem; color: var(--muted);
+    line-height: 1.5; padding-left: 1rem;
+    position: relative;
+  }
+  .bal-col li::before {
+    content: ''; position: absolute; left: 0; top: 0.55em;
+    width: 4px; height: 4px; border-radius: 50%;
+  }
+  .bal-plus li::before { background: var(--emerald); }
+  .bal-minus li::before { background: var(--rose); }
+
+  /* Timeline */
+  .tl {
+    display: flex; gap: 0;
+    max-width: 760px; width: 100%; margin-top: 2.2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .tl-s {
+    flex: 1; padding: 1.6rem 1.2rem; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .tl-s:last-child { border-right: none; }
+  .tl-age { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .tl-lab { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .tl-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
+
+  /* Video */
+  .video-wrap {
+    max-width: 680px; width: 100%; margin-top: 2rem;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border);
+    aspect-ratio: 16/9; background: #111;
+    position: relative;
+  }
+  .video-wrap iframe { width: 100%; height: 100%; border: none; }
+  .video-ph {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--dim); gap: 0.6rem;
+  }
+  .video-ph svg { width: 44px; height: 44px; opacity: 0.35; }
+  .video-ph span { font-size: 0.7rem; }
+
+  /* Quote */
+  .quote {
+    max-width: 600px; text-align: center;
+    margin-top: 2rem; padding: 1.8rem 2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .quote p {
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+    font-weight: 300; line-height: 1.6;
+    font-style: italic; color: var(--accent);
+  }
+  .quote cite {
+    display: block; margin-top: 0.8rem;
+    font-size: 0.72rem; color: var(--dim);
+    font-style: normal; font-weight: 500;
+  }
+
+  /* Progress */
+  .prog {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--fg);
+    transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+    z-index: 100;
+  }
+
+  /* Nav */
+  .nav {
+    position: fixed; bottom: 1.8rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.4rem;
+    z-index: 50; padding: 0.45rem 0.7rem;
+    background: rgba(9,9,11,0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+  .dots { display: flex; gap: 5px; align-items: center; }
+  .dot-btn {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    transition: all 0.3s; cursor: pointer;
+    border: none; padding: 0;
+  }
+  .dot-btn.on { background: var(--fg); width: 18px; border-radius: 3px; }
+  .cnt {
+    font-size: 0.65rem; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+    margin-left: 0.5rem; font-weight: 500;
+    min-width: 3.5em; text-align: center;
+  }
+  .nb {
+    background: none; border: 1px solid var(--border);
+    color: var(--fg); width: 30px; height: 30px;
+    border-radius: 7px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; font-size: 0.85rem;
+  }
+  .nb:hover { background: rgba(255,255,255,0.05); }
+
+  /* Animations */
+  .slide.active .a {
+    animation: fin 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .slide.active .d1 { animation-delay: 0.06s; }
+  .slide.active .d2 { animation-delay: 0.12s; }
+  .slide.active .d3 { animation-delay: 0.18s; }
+  .slide.active .d4 { animation-delay: 0.24s; }
+  .slide.active .d5 { animation-delay: 0.30s; }
+
+  @keyframes fin {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .slide { padding: 2.5rem 1.5rem; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .tl { flex-direction: column; }
+    .tl-s { border-right: none; border-bottom: 1px solid var(--border); }
+    .tl-s:last-child { border-bottom: none; }
+    .balance { grid-template-columns: 1fr; }
+  }
+
+  .hint {
+    position: fixed; bottom: 4.5rem; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem; color: rgba(255,255,255,0.15);
+    letter-spacing: 0.1em; z-index: 50;
+    transition: opacity 0.8s;
+  }
+
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .org {
+    font-size: 0.68rem; color: var(--dim); font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .org a { color: var(--muted); text-decoration: none; }
+  .org a:hover { text-decoration: underline; }
+
+  em { font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 0: TITTEL -->
+  <div class="slide active">
+    <div class="tag a">Smarttelefonfri Barndom</div>
+    <h1 class="a d1">En barndom uten<br>smarttelefon?</h1>
+    <p class="sub a d2">
+      En kort samtale om hva vi vet, og hva vi kan gj&oslash;re sammen.
+    </p>
+    <div class="divider a d3"></div>
+    <p class="org a d4">
+      <a href="https://www.smarttelefonfribarndom.no" target="_blank">smarttelefonfribarndom.no</a>
+      &nbsp;&middot;&nbsp; Vinner av Barnehelseprisen 2026
+    </p>
+  </div>
+
+  <!-- 1: HVORFOR SNAKKE OM DETTE -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--sky)"></span>Hvorfor dette m&oslash;tet</div>
+    <h2 class="a d1">Smarttelefonen har bare v&aelig;rt<br>en del av barns liv i 12 &aring;r</h2>
+    <p class="sub a d2">
+      For voksne er den selvf&oslash;lgelig. Men det beh&oslash;ver den ikke v&aelig;re for barn.
+      Vi har innsikt i dag som foreldre ikke hadde for ti &aring;r siden &mdash;
+      og vi skylder barna v&aring;re &aring; ta det p&aring; alvor.
+    </p>
+    <div class="quote a d3">
+      <p>&laquo;Egentlig er det snålt &aring; m&aring;tte argumentere for hvorfor unger <em>ikke</em> burde ha smarttelefon. Hvorfor i all verden <em>burde</em> de ha det?&raquo;</p>
+    </div>
+  </div>
+
+  <!-- 2: NORSKE TALL -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--sky)"></span>Norske tall</div>
+    <h2 class="a d1">Hva skjer i Norge?</h2>
+    <div class="stats a d2">
+      <div class="stat">
+        <div class="stat-v" style="color:var(--sky)">62%</div>
+        <div class="stat-l">av barn f&aring;r smarttelefon<br>f&oslash;r de fyller &aring;tte</div>
+        <div class="stat-src">Medietilsynet 2024</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--sky)">90%</div>
+        <div class="stat-l">av barn 9&ndash;11 &aring;r har<br>egen mobiltelefon</div>
+        <div class="stat-src">NOU 2024:20</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--sky)">53%</div>
+        <div class="stat-l">er p&aring; sosiale medier<br>fra 9 &aring;rs alder</div>
+        <div class="stat-src">Medietilsynet &middot; aldersgrense: 13</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--sky)">5&ndash;8t</div>
+        <div class="stat-l">daglig skjermtid<br>= 1000&ndash;2000 timer/&aring;r</div>
+        <div class="stat-src">Barnevakten</div>
+      </div>
+    </div>
+    <p class="sub a d3" style="font-size:0.8rem; margin-top:1.4rem;">
+      YouTube, Snapchat, Instagram og TikTok dominerer blant 9&ndash;18-&aring;ringer.
+    </p>
+  </div>
+
+  <!-- 3: KONSEKVENSER -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--rose)"></span>Konsekvensene</div>
+    <h2 class="a d1">Forskning viser at<br>dette har store konsekvenser</h2>
+    <div class="cards a d2">
+      <div class="card">
+        <div class="card-i">01</div>
+        <div>
+          <b>Stjeler tid fra lek og utforskning</b>
+          <span>Fri lek fremmer kreativitet, probleml&oslash;sning og sosiale ferdigheter. Skjermtid erstatter dette. 65% nedgang i vennetid ansikt-til-ansikt siden 2007.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-i">02</div>
+        <div>
+          <b>P&aring;virker s&oslash;vn, konsentrasjon og l&aelig;ring</b>
+          <span>Dobbelt s&aring; stor risiko for d&aring;rlig s&oslash;vn. 23 min for &aring; finne fokus etter &eacute;tt avbrudd. Smarttelefonfrie skoler: 1&ndash;2 karakterer bedre.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-i">03</div>
+        <div>
+          <b>Avhengighet og psykisk helse</b>
+          <span>Appene er designet for &aring; holde dem inne. 3x mer depresjon ved problematisk bruk. Smarttelefon ved 6 &aring;r: 74% psykiske plager vs. 46% ved 18 &aring;r.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-i">04</div>
+        <div>
+          <b>Eksponering for innhold de ikke er klare for</b>
+          <span>51% av 11&ndash;13-&aring;ringer har sett pornografi, oftest utilsiktet. 90% av jenter har mottatt u&oslash;nsket seksuelt innhold. Algoritmene serverer det barna ikke s&oslash;ker etter.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4: BALANSE -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--amber)"></span>&AElig;rlig vurdering</div>
+    <h2 class="a d1">Fordeler og ulemper</h2>
+    <p class="sub a d2">
+      Ja, det finnes praktiske fordeler. Men skal noen f&aring; praktiske ting
+      som lett kan l&oslash;ses p&aring; andre m&aring;ter, veie mer enn alt det andre?
+    </p>
+    <div class="balance a d3">
+      <div class="bal-col bal-plus">
+        <h3 style="color:var(--emerald)">Fordeler</h3>
+        <ul>
+          <li>Vipps</li>
+          <li>Ruter / kollektivapp</li>
+          <li>Kontakt med foreldre</li>
+        </ul>
+      </div>
+      <div class="bal-col bal-minus">
+        <h3 style="color:var(--rose)">Ulemper</h3>
+        <ul>
+          <li>S&oslash;vnproblemer</li>
+          <li>Avhengighet</li>
+          <li>Eksponering for skadelig innhold</li>
+          <li>Nedsatt konsentrasjon</li>
+          <li>Mindre sosial kompetanse</li>
+          <li>Digital mobbing og utestenging</li>
+          <li>D&aring;rligere mental helse</li>
+          <li>Redusert privatliv</li>
+          <li>Kommersialisering av barns liv</li>
+        </ul>
+      </div>
+    </div>
+    <p class="sub a d4" style="font-size: 0.78rem; margin-top:1rem;">
+      Kontaktbehovet l&oslash;ses enkelt med en &laquo;dumtelefon&raquo; eller smartklokke.
+    </p>
+  </div>
+
+  <!-- 5: ALLE ANDRE FÅR LOV -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--amber)"></span>Det vanskelige sp&oslash;rsm&aring;let</div>
+    <h2 class="a d1">&laquo;Men alle andre f&aring;r lov&raquo;</h2>
+    <p class="sub a d2">
+      Medietilsynet viser at foreldre lar barna f&aring; mobil og sosiale medier
+      selv om de synes det er for tidlig &mdash; i frykt for at de skal falle utenfor.
+    </p>
+    <div class="quote a d3">
+      <p>&laquo;Alle andre&raquo; er en sterk motstander n&aring;r du diskuterer med barn.
+        Hva om man kunne eliminere argumentet helt og holdent?</p>
+    </div>
+    <p class="sub a d4" style="font-size: 0.85rem; color: var(--emerald);">
+      N&aring;r foreldre i en klasse st&aring;r sammen, kan du trygt svare:<br>
+      &laquo;Nei, det har de faktisk ikke.&raquo;
+    </p>
+  </div>
+
+  <!-- 6: VIDEO -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--sky)"></span>Se selv</div>
+    <h2 class="a d1">Kort om bevegelsen</h2>
+    <p class="sub a d2">Trykk play.</p>
+    <div class="video-wrap a d3">
+      <!-- BYTT UT: erstatt video-placeholder med iframe -->
+      <div class="video-ph" id="videoSlot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+        <span>Lim inn YouTube/Vimeo-embed i koden</span>
+        <span style="font-size:0.55rem;opacity:0.4">Erstatt div.video-ph med en iframe</span>
+      </div>
+      <!--
+      <iframe src="https://www.youtube.com/embed/DITT_VIDEO_ID"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+      -->
+    </div>
+  </div>
+
+  <!-- 7: BEVEGELSEN -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--emerald)"></span>Bevegelsen i Norge</div>
+    <h2 class="a d1">200&nbsp;000 barn. 700 skoler.<br>Vi er allerede i gang.</h2>
+    <p class="sub a d2">
+      Smarttelefonfri Barndom er en foreldredrevet grasrotbevegelse
+      som samler, styrker og mobiliserer foreldre over hele landet.
+    </p>
+    <div class="stats a d3">
+      <div class="stat">
+        <div class="stat-v" style="color:var(--emerald)">700</div>
+        <div class="stat-l">skoler med<br>foreldreinitiativ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--emerald)">400</div>
+        <div class="stat-l">skoler med<br>FAU-vedtak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--emerald)">82%</div>
+        <div class="stat-l">av foreldre st&oslash;tter<br>samarbeid om dette</div>
+      </div>
+      <div class="stat">
+        <div class="stat-v" style="color:var(--emerald)">14</div>
+        <div class="stat-l">fylkesgrupper<br>for foreldre</div>
+      </div>
+    </div>
+    <p class="sub a d4" style="font-size:0.75rem; margin-top:1rem;">
+      M&aring;l: Ingen barn i barneskolealder med smarttelefon innen 2030.
+    </p>
+  </div>
+
+  <!-- 8: HVA VI KAN GJØRE -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--emerald)"></span>V&aring;r klasse</div>
+    <h2 class="a d1">Hva kan vi gj&oslash;re?</h2>
+    <p class="sub a d2">
+      Det krever en liten dose mot, innsats og solidaritet &mdash;
+      men mye mindre enn det som kreves for &aring; rydde opp i konsekvensene.
+    </p>
+    <div class="cards a d3">
+      <div class="card">
+        <div class="card-i" style="color:var(--emerald)">1</div>
+        <div>
+          <b>Snakk &aring;pent om det</b>
+          <span>Dialogen m&aring; starte tidlig &mdash; helst allerede i f&oslash;rste klasse. Si &aring;pent om dere er med eller ikke, s&aring; vet alle hva man har &aring; jobbe med.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-i" style="color:var(--emerald)">2</div>
+        <div>
+          <b>Bli enige som klasse</b>
+          <span>Ingen smarttelefon p&aring; barneskolen. Enkel telefon for kontakt. N&aring;r flertallet holder igjen, l&oslash;ser vi &laquo;alle andre har&raquo;-problemet.</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-i" style="color:var(--emerald)">3</div>
+        <div>
+          <b>Gradvis tilgang fra ungdomsskolen</b>
+          <span>Smarttelefon med grenser og &aring;pen samtale &mdash; ikke forbud, men dialog. Det er lov &aring; ta telefonen tilbake, og det finnes gode alternativer.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9: TRINNVIS -->
+  <div class="slide">
+    <div class="tag a"><span class="pip" style="background:var(--emerald)"></span>Anbefaling</div>
+    <h2 class="a d1">En gradvis vei inn</h2>
+    <div class="tl a d2">
+      <div class="tl-s">
+        <div class="tl-age" style="color:var(--emerald)">0&ndash;10</div>
+        <div class="tl-lab">Ingen egen telefon</div>
+        <div class="tl-desc">Skjerm i kontrollerte former hjemme. Lek, venner, fritid.</div>
+      </div>
+      <div class="tl-s">
+        <div class="tl-age" style="color:var(--sky)">10&ndash;13</div>
+        <div class="tl-lab">Enkel telefon</div>
+        <div class="tl-desc">Ring og send meldinger. Ingen nettleser eller sosiale medier.</div>
+      </div>
+      <div class="tl-s">
+        <div class="tl-age" style="color:var(--amber)">13&ndash;16</div>
+        <div class="tl-lab">Smarttelefon m/grenser</div>
+        <div class="tl-desc">Foreldrekontroll, tidsavtaler, &aring;pen samtale.</div>
+      </div>
+      <div class="tl-s">
+        <div class="tl-age">16+</div>
+        <div class="tl-lab">Full tilgang</div>
+        <div class="tl-desc">Bedre rustet for internettets kompleksitet.</div>
+      </div>
+    </div>
+    <p class="sub a d3" style="font-size:0.78rem; margin-top:1.2rem;">
+      &Aring; gi et barn en smarttelefon er ikke det samme som &aring; gi teknologisk kompetanse.<br>
+      Det er som &aring; gi dem en bil uten f&oslash;rerkort.
+    </p>
+  </div>
+
+  <!-- 10: AVSLUTNING -->
+  <div class="slide">
+    <div class="tag a">Oppsummering</div>
+    <h1 class="a d1" style="font-size:clamp(1.8rem,3.8vw,3rem)">
+      Vi gir ikke barna<br>mindre &mdash; vi gir dem mer
+    </h1>
+    <p class="sub a d2">
+      Mer lek. Mer kreativitet. Mer ekte vennskap.<br>
+      Bedre s&oslash;vn. Bedre konsentrasjon. Mer barndom.
+    </p>
+    <div class="divider a d3"></div>
+    <div class="quote a d4">
+      <p>&laquo;Du trenger ikke v&aelig;re anti-tech eller anti-skjerm for &aring; mene at barn ikke b&oslash;r ha smarttelefon og sosiale medier.&raquo;</p>
+    </div>
+    <div class="divider a d5"></div>
+    <p class="org a d5">
+      <a href="https://www.smarttelefonfribarndom.no" target="_blank">smarttelefonfribarndom.no</a>
+      &nbsp;&middot;&nbsp; @smarttelefonfribarndom
+    </p>
+  </div>
+
+</div>
+
+<div class="hint" id="hint">Piltaster &middot; mellomrom &middot; sveip</div>
+
+<nav class="nav">
+  <button class="nb" id="prev" aria-label="Forrige">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="cnt" id="cnt"></span>
+  <button class="nb" id="next" aria-label="Neste">&#8594;</button>
+</nav>
+
+<script>
+(() => {
+  const S = [...document.querySelectorAll('.slide')];
+  const N = S.length;
+  let cur = 0, busy = false;
+
+  const prog = document.getElementById('prog');
+  const dots = document.getElementById('dots');
+  const cnt  = document.getElementById('cnt');
+  const hint = document.getElementById('hint');
+
+  S.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dot-btn' + (i === 0 ? ' on' : '');
+    b.setAttribute('aria-label', `Lysbilde ${i + 1}`);
+    b.onclick = () => go(i);
+    dots.appendChild(b);
+  });
+
+  function ui() {
+    prog.style.width = ((cur + 1) / N * 100) + '%';
+    cnt.textContent = `${cur + 1} / ${N}`;
+    dots.querySelectorAll('.dot-btn').forEach((d, i) => d.classList.toggle('on', i === cur));
+  }
+
+  function go(i) {
+    if (i === cur || i < 0 || i >= N || busy) return;
+    busy = true;
+    const old = S[cur], nxt = S[i];
+    nxt.querySelectorAll('.a').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
+    old.classList.remove('active'); old.classList.add('exit');
+    nxt.classList.add('active');
+    cur = i; ui();
+    setTimeout(() => { old.classList.remove('exit'); busy = false; }, 550);
+  }
+
+  document.getElementById('next').onclick = () => go(cur + 1);
+  document.getElementById('prev').onclick = () => go(cur - 1);
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight',' ','Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+    if (['ArrowLeft','Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End') { e.preventDefault(); go(N - 1); }
+  });
+
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) dx < 0 ? go(cur + 1) : go(cur - 1);
+  });
+
+  let hinted = false;
+  function hh() { if (!hinted) { hinted = true; hint.style.opacity = '0'; } }
+  document.addEventListener('keydown', hh, { once: true });
+  document.addEventListener('click', hh, { once: true });
+
+  ui();
+})();
+</script>
+
+</body>
+</html>

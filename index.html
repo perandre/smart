@@ -479,6 +479,56 @@
       border-radius: 4px;
     }
 
+    /* ══ SPLIT SLIDE (text + image) ══ */
+    .split {
+      flex-direction: row !important;
+      gap: 0;
+      padding: 0 !important;
+    }
+    .split-text {
+      flex: 1;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 3rem 4rem;
+    }
+    .split-img {
+      width: 42%;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .split-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .split-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--bg) 0%, transparent 30%);
+    }
+
+    /* floating image accent */
+    .img-float {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .img-float img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .split { flex-direction: column !important; }
+      .split-img { width: 100%; height: 35vh; }
+      .split-text { padding: 2rem 1.5rem; }
+    }
+
     /* ══ LINKS SLIDE ══ */
     .links {
       display: flex;
@@ -743,16 +793,21 @@
     </div>
 
     <!-- 1: HVORFOR -->
-    <div class="slide">
-      <div class="tag a"><span class="pip" style="background:var(--sky)"></span>Hvorfor?</div>
-      <h2 class="a d1">Smarttelefonen har bare v&aelig;rt<br>en del av barns liv i 12 &aring;r</h2>
-      <p class="sub a d2">
-        Vi har innsikt i dag som foreldre ikke hadde for ti &aring;r siden.
-        Vi skylder barna v&aring;re &aring; ta den p&aring; alvor.
-      </p>
-      <div class="quote a d3">
-        <p>&laquo;Egentlig er det snålt &aring; m&aring;tte argumentere for hvorfor unger <em>ikke</em> burde ha
-          smarttelefon. Hvorfor i all verden <em>burde</em> de ha det?&raquo;</p>
+    <div class="slide split">
+      <div class="split-text">
+        <div class="tag a"><span class="pip" style="background:var(--sky)"></span>Hvorfor?</div>
+        <h2 class="a d1" style="text-align:left">Smarttelefonen har bare v&aelig;rt en del av barns liv i 12 &aring;r</h2>
+        <p class="sub a d2" style="text-align:left; max-width: 480px;">
+          Vi har innsikt i dag som foreldre ikke hadde for ti &aring;r siden.
+          Vi skylder barna v&aring;re &aring; ta den p&aring; alvor.
+        </p>
+        <div class="quote a d3" style="text-align:left">
+          <p>&laquo;Egentlig er det snålt &aring; m&aring;tte argumentere for hvorfor unger <em>ikke</em> burde ha
+            smarttelefon. Hvorfor i all verden <em>burde</em> de ha det?&raquo;</p>
+        </div>
+      </div>
+      <div class="split-img a d2">
+        <img src="img-sjekke-chatten.jpg" alt="Jente sjekker chatten mens andre leker">
       </div>
     </div>
 
@@ -784,41 +839,43 @@
     </div>
 
     <!-- 3: KONSEKVENSER -->
-    <div class="slide">
-      <div class="tag a"><span class="pip" style="background:var(--coral)"></span>Konsekvensene</div>
-      <h2 class="a d1">Forskning viser<br>store konsekvenser</h2>
-      <div class="cards a d2">
-        <div class="card">
-          <div class="card-i">1</div>
-          <div>
-            <b>Stjeler tid fra lek og utforskning</b>
-            <span>Fri lek bygger kreativitet og sosiale ferdigheter. 65% nedgang i vennetid ansikt-til-ansikt siden
-              2007.</span>
+    <div class="slide split">
+      <div class="split-text">
+        <div class="tag a"><span class="pip" style="background:var(--coral)"></span>Konsekvensene</div>
+        <h2 class="a d1" style="text-align:left; font-size:clamp(1.8rem,3.5vw,2.8rem)">Forskning viser<br>store konsekvenser</h2>
+        <div class="cards a d2" style="max-width:100%">
+          <div class="card">
+            <div class="card-i">1</div>
+            <div>
+              <b>Stjeler tid fra lek og utforskning</b>
+              <span>65% nedgang i vennetid ansikt-til-ansikt siden 2007.</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-i">2</div>
+            <div>
+              <b>P&aring;virker s&oslash;vn, konsentrasjon og l&aelig;ring</b>
+              <span>2x risiko for d&aring;rlig s&oslash;vn. 1&ndash;2 karakterer bedre uten.</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-i">3</div>
+            <div>
+              <b>Avhengighet og psykisk helse</b>
+              <span>3x mer depresjon ved problematisk bruk.</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-i">4</div>
+            <div>
+              <b>Innholdet finner barna</b>
+              <span>51% har sett pornografi, oftest utilsiktet.</span>
+            </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-i">2</div>
-          <div>
-            <b>P&aring;virker s&oslash;vn, konsentrasjon og l&aelig;ring</b>
-            <span>Dobbelt s&aring; stor risiko for d&aring;rlig s&oslash;vn. Smarttelefonfrie skoler: 1&ndash;2
-              karakterer bedre.</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-i">3</div>
-          <div>
-            <b>Avhengighet og psykisk helse</b>
-            <span>Appene er designet for &aring; holde dem inne. 3x mer depresjon ved problematisk bruk.</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-i">4</div>
-          <div>
-            <b>Innholdet finner barna</b>
-            <span>51% av 11&ndash;13-&aring;ringer har sett pornografi, oftest utilsiktet. Algoritmene serverer det
-              barna ikke s&oslash;ker.</span>
-          </div>
-        </div>
+      </div>
+      <div class="split-img a d2">
+        <img src="img-gutt-sklie.jpg" alt="Gutt sitter p&aring; sklie og ser p&aring; telefon">
       </div>
     </div>
 
@@ -858,19 +915,21 @@
     </div>
 
     <!-- 5: ALLE ANDRE -->
-    <div class="slide">
-      <div class="tag a"><span class="pip" style="background:var(--lemon)"></span>Det vanskelige sp&oslash;rsm&aring;let
+    <div class="slide split">
+      <div class="split-text">
+        <div class="tag a"><span class="pip" style="background:var(--lemon)"></span>Det vanskelige sp&oslash;rsm&aring;let</div>
+        <h1 class="a d1" style="text-align:left; font-size:clamp(2.2rem,4.5vw,3.8rem)">&laquo;Men alle andre<br>f&aring;r lov ...&raquo;</h1>
+        <p class="sub a d2" style="text-align:left; max-width: 480px;">
+          Foreldre gir barna mobil selv om de synes det er for tidlig &mdash; i frykt for at de skal falle utenfor.
+        </p>
+        <p class="a d3" style="margin-top: 1.5rem; font-size: 1.4rem; font-weight: 600; color: var(--mint); text-align: left; line-height: 1.4;">
+          N&aring;r vi st&aring;r sammen som klasse,<br>
+          kan du trygt svare: &laquo;Nei, det har de ikke.&raquo;
+        </p>
       </div>
-      <h1 class="a d1" style="font-size:clamp(2.4rem,5vw,4.2rem)">&laquo;Men alle andre<br>f&aring;r lov ...&raquo;</h1>
-      <p class="sub a d2">
-        Medietilsynet viser at foreldre gir barna mobil selv om de synes
-        det er for tidlig &mdash; i frykt for at de skal falle utenfor.
-      </p>
-      <div class="divider a d3"></div>
-      <p class="sub a d4" style="color: var(--mint); font-weight: 500; font-size: 1.3rem;">
-        N&aring;r foreldre i en klasse st&aring;r sammen,<br>
-        kan du trygt svare: &laquo;Nei, det har de ikke.&raquo;
-      </p>
+      <div class="split-img a d2">
+        <img src="img-gutt-mobil.jpg" alt="Gutt med telefon p&aring; lekeplass">
+      </div>
     </div>
 
     <!-- 6: VIDEO -->
